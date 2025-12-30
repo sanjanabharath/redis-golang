@@ -13,9 +13,6 @@ import (
 )
 
 func readCommand(c io.ReadWriter) (*cmd.RedisCMD, error) {
-	// TODO: Max read in one shot is 512 bytes
-	// To allow input > 512 bytes, then repeated read until
-	// we get EOF or designated delimiter
 	var buf []byte = make([]byte, 512)
 	n, err := c.Read(buf[:])
 	if err != nil {
@@ -47,12 +44,10 @@ func respond(cd *cmd.RedisCMD, c io.ReadWriter) {
 func RunSyncTCPServer() {
 	log.Println("starting a synchronous TCP server on", configs.Host, configs.Port)
 
-	// Start the background cleanup routine for expired keys
 	cmd.StartCleanupRoutine()
 
 	var con_clients int = 0
 
-	// listening to the configured host:port
 	lsnr, err := net.Listen("tcp", configs.Host+":"+strconv.FormatInt(configs.Port, 10))
 	if err != nil {
 		log.Println("err", err)
@@ -60,17 +55,17 @@ func RunSyncTCPServer() {
 	}
 
 	for {
-		// blocking call: waiting for the new client to connect
+		// wait for a client to connect
 		c, err := lsnr.Accept()
 		if err != nil {
 			log.Println("err", err)
 		}
 
-		// increment the number of concurrent clients
+		// increment the connection count
 		con_clients += 1
 
 		for {
-			// over the socket, continuously read the command and print it out
+			// obtain the command from the client
 			cmd, err := readCommand(c)
 			if err != nil {
 				c.Close()
