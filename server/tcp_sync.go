@@ -37,8 +37,8 @@ func respondError(err error, c io.ReadWriter) {
 	c.Write([]byte(fmt.Sprintf("-%s\r\n", err)))
 }
 
-func respond(cmd *cmd.RedisCMD, c io.ReadWriter) {
-	err := cmd.EvalAndRespond(cmd, c)
+func respond(cd *cmd.RedisCMD, c io.ReadWriter) {
+	err := cmd.EvalAndRespond(cd, c)
 	if err != nil {
 		respondError(err, c)
 	}
@@ -53,7 +53,7 @@ func RunSyncTCPServer() {
 	var con_clients int = 0
 
 	// listening to the configured host:port
-	lsnr, err := net.Listen("tcp", configs.Host+":"+strconv.Itoa(configs.Port))
+	lsnr, err := net.Listen("tcp", configs.Host+":"+strconv.FormatInt(configs.Port, 10))
 	if err != nil {
 		log.Println("err", err)
 		return
