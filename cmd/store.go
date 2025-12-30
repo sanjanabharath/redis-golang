@@ -33,7 +33,7 @@ func Put(k string, obj *Obj) {
 	store[k] = obj
 }
 
-func Delete(k string) bool {
+func Del(k string) bool {
 	if _, exists := store[k]; exists {
 		delete(store, k)
 		return true
